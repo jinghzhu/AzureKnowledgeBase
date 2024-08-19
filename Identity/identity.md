@@ -306,3 +306,4 @@ A common example of federation in practice is when user logs in third-party site
 - [Integrating Entra ID with applications getting started guide](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/plan-an-application-integration)
 - [Getting started on managing service principals using C#](https://learn.microsoft.com/en-us/samples/azure-samples/aad-dotnet-manage-service-principals/getting-started-on-managing-service-principals-using-c/)
 - [Application and service principal objects in Entra ID](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser)
+- [Secure a .NET web app with ASP.NET Core Identity framework](https://learn.microsoft.com/en-us/training/modules/secure-aspnet-core-identity/1-introduction)
