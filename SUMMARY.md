@@ -18,4 +18,4 @@
 
 * [Network](/Network/network.md)
 
-* [Glossary](/glossary.md)
+* [Azure](/Azure/azure.md)
