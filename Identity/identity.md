@@ -62,20 +62,41 @@ User-assigned managed identities are created as standalone Azure resources. They
 * If web app is deployed on 10 front-end VMs, you can create user-assigned managed identity for app, grant the managed identity the necessary rights, and associate it with all VMs.
 * If you used system-assigned managed identity, you'd need 10 identities, and you'd have to manage access for each one.
 
+Following are common use cases for managed identities:
+
+* System-assigned managed identity
+    * Workloads contained within single resource.
+    * Workloads needing independent identities.
+    * For example, an application that runs on a single VM.
+* User-assigned managed identity
+    * Workloads that run on multiple resources and can share a single identity.
+    * Workloads needing preauthorization to a secure resource, as part of a provisioning flow.
+    * Workloads where resources are recycled frequently, but permissions should stay consistent.
+    * For example, a workload where multiple VMs need to access the same resource.
+
 <br>
 
 
-### Use managed identities with VM
-When enable a system-assigned managed identity in a VM's settings:
+### MI authentication flow
+How system-assigned managed identity works with VM:
+1. ARM receives request to enable system-assigned managed identity on a VM.
+2. ARM creates service principal in  Entra ID for the identity of VM. The service principal is created in Entra tenant that's trusted by the subscription.
+3. ARM configures the identity on VM by updating Azure Instance Metadata Service identity endpoint with service principal client ID and certificate.
+4. After VM has an identity, use the service principal information to grant VM access to Azure resources. To call ARM, use RBAC in Entra ID to assign appropriate role to VM service principal. To call KV, grant your code access to the specific secret or key in KV.
+5. Your code that's running on the VM can request a token from Azure Instance Metadata service endpoint, accessible only from within VM: `http://169.254.169.254/metadata/identity/oauth2/token`
+6. A call is made to Entra ID to request access token (as specified in step 5) by using client ID and certificate configured in step 3. Entra ID returns JWT access token.
+7. Your code sends access token on a call to service that supports Entra authentication.
 
-1. VM sends a request for a managed identity.
-2. In Entra ID, a service principal is created for VM within tenant that the subscription trusts.
-3. ARM updates Azure Instance Metadata Service identity endpoint with service principal client ID and certificate.
-4. New service principal information is used to grant VM access to Azure resources. To give your app access to key vault, use RBAC in Entra ID. Assign required role to VM's service principal. Entra ID returns a JSON Web Token access token.
-5. When the configuration finishes, you don't need to create any other credentials to access other resources that support Entra authentication.
+How user-assigned managed identity works with VM:
+1. ARM receives request to create user-assigned managed identity.
+2. ARM creates service principal in Entra ID for user-assigned managed identity. The service principal is created in e Microsoft Entra tenant that's trusted by the subscription.
+3. ARM receives request to configure user-assigned managed identity on VM and updates the Azure Instance Metadata Service identity endpoint with user-assigned managed identity service principal client ID and certificate.
+4. After user-assigned managed identity is created, use the service principal information to grant identity access to resources. To call ARM, use RBAC in Entra ID to assign the appropriate role to service principal of user-assigned identity. To call KV, grant your code access to the specific secret or key in KV.
+5. Your code that's running on VM can request a token from Azure Instance Metadata Service identity endpoint, accessible only from within VM: `http://169.254.169.254/metadata/identity/oauth2/token`.
+6. A call is made to Entra ID to request an access token (as specified in step 5) by using client ID and certificate configured in step 3. Entra ID returns JWT access token.
+7. Your code sends access token on a call to service that supports Entra authentication.
 
 An app that runs on an Azure resource, such as VM or function app, uses managed identity to authenticate and access other resources. The authentication and access process involves a series of requests to Azure Instance Metadata Service:
-
 1. The service validates identity that's associated with your app.
 2. Generates a resource access token.
 3. Your app sends token to resource that it needs to access.
