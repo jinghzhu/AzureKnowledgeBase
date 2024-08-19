@@ -5,19 +5,25 @@
 
 
 ## What
-Entra ID, part of Entra, is a cloud-based identity-management solution. It helps company's internal users to:
-* Access external resources like Azure services, M365, and 3P SaaS app.
-* Access internal resources such as app on the corp network.
+Though they once shared similar name, Entra ID is not cloud version of Windows Server AD. It's not intended as a complete replacement for on-premises AD. Instead, if you're already using Windows AD server, you can connect it to Entra ID to extend directory into Azure. This approach allows users to use same credentials to access local and cloud-based resources.
 
-Entra ID stores users in a tenant that represents an org. For example, say you have a company tenant where all of employee user accounts are stored. You can add users in this tenant to groups so they have a common shared-access level. You could have one group for dev and another group for testers. These groups would have different access levels. Each tenant can have multiple groups that hold multiple users.
+![](./Images/entra_windows_ad.png)
 
-Each Entra tenant is assigned default Domain Name System (DNS) domain name, consisting of a unique prefix. The prefix, derived from the name of Microsoft account you use to create an Azure sub or provided explicitly when creating a Entra tenant, is followed by `onmicrosoft.com` suffix. Adding at least one custom domain name to the same Entra tenant is possible and common. This name utilizes DNS domain namespace that the corresponding org owns. The Entra tenant serves as security boundary and a container for Entra objects such as users, groups, and app. A single Entra tenant can support multiple Azure sub.
+Entra ID stores users in a tenant that represents an org. For example, say you have a company tenant where all of employee user accounts are stored. You can add users in this tenant to groups so they have a common shared-access level. You could have one group for dev and another group for testers. Each tenant can have multiple groups that hold multiple users.
+
+Each Entra tenant is assigned default DNS domain name, consisting of a unique prefix. The prefix, derived from the name of Microsoft account you use to create Azure sub or provided explicitly when creating a Entra tenant, is followed by `onmicrosoft.com` suffix. This name utilizes DNS domain namespace that the corresponding org owns. The Entra tenant serves as security boundary and container for Entra objects such as users, groups, and app. A single Entra tenant can support multiple Azure sub.
 
 ![](./Images/entra1.png)
 
-When you deploy cloud services such as M365 or Intune, you also need to have directory services in cloud to provide authN and authZ for these services. Because of this, each cloud service that needs authN will create its own Entra tenant. When a single org uses more than one cloud service, it’s much more convenient for these cloud services to use a single cloud directory instead of having separate directories for each service.
+When an org signs up to use one of Microsoft service, such as M365, they're assigned a default directory, an instance of Entra ID. This directory holds the users and groups that will have access to each of services the company has purchased. You can refer to this default directory as a tenant. A tenant represents the organization and the default directory assigned to it. When you deploy services such as M365 or Intune, you also need to have directory services in cloud to provide authN and authZ. Because of this, each service that needs authN will create its own Entra tenant. When a single org uses more than one cloud service, it’s much more convenient for these services to use a single cloud directory instead of having separate directories for each service.
 
-It’s possible to have one identity service that covers all Microsoft cloud-based services, such as M365, Azure, D365, and Intune. Entra ID provides dev with centralized authN and authZ for app in Azure by using other identity providers or on-premises AD DS. Entra ID can provide users with an SSO experience when using app such as Facebook or Microsoft cloud services.
+![](./Images/entra_directories.png)
+
+It’s possible to have one identity service that covers all Microsoft services, such as M365, Azure, and Intune. Entra ID provides dev with centralized authN and authZ for app in Azure by using other identity providers or on-premises AD DS. Entra ID can provide users with an SSO experience when using app such as Facebook or Microsoft cloud services.
+
+Entra ID allows to define two types of groups.
+1. Security groups: the most common, and are used to manage member and computer access to shared resources for a group of users. For example, you can create a security group for specific security policy. You can give a set of permissions to all members at once instead of having to add permissions to each member individually.
+2. M365 groups: provide collaboration opportunities by giving members access to shared mailbox, files, and more. This option also lets you give people outside of org access to the group.
 
 Terminology:
 * Identity - object that can get authenticated. An identity can be a user with username and password. Identities also include app or other servers that might require authentication through secret keys or certificates.
